@@ -130,6 +130,7 @@ class Game:
             self.clock.tick(FPS)
 
     def play(self, players_count=1):
+        self.background = Background()
         player1 = Player(
             start_pos=(120, HEIGHT // 2 - 60),
             controls={
@@ -191,6 +192,7 @@ class Game:
             bullets.update()
             enemies.update()
             explosions.update()
+            self.background.update()
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for _, enemy_list in hits.items():
@@ -198,6 +200,12 @@ class Game:
                     score += 10
                     explosions.add(Explosion(enemy.rect.center))
                     enemy.respawn()
+
+            self.background.draw(self.window)
+            players.draw(self.window)
+            bullets.draw(self.window)
+            enemies.draw(self.window)
+            explosions.draw(self.window)
 
             for player in player_list:
                 player_hits = pygame.sprite.spritecollide(player, enemies, False)
@@ -219,6 +227,7 @@ class Game:
                 self.draw_ui(score, player_list[0].health)
             else:
                 self.draw_ui(score, player_list[0].health, player_list[1].health)
+
 
             pygame.display.flip()
 
