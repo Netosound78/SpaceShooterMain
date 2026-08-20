@@ -1,9 +1,13 @@
+import os
 import pygame
-from code.const import WIDTH, HEIGHT, FPS, WHITE, RED, GREEN
+
+from code.const import WIDTH, HEIGHT, FPS, WHITE, RED, GREEN, ASSET_DIR
 from code.background import Background
 from code.player import Player
 from code.enemy import Enemy
 from code.menu import Menu
+from code.explosion import Explosion
+
 
 class Game:
     def __init__(self):
@@ -17,19 +21,88 @@ class Game:
         self.background = Background()
 
         self.font_ui = pygame.font.SysFont("arial", 24, bold=True)
+        self.font_medium = pygame.font.SysFont("arial", 32, bold=True)
         self.font_big = pygame.font.SysFont("arial", 48, bold=True)
 
-    def draw_ui(self, score, health):
+        self.score_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "highscore.txt")
+
+    def play_music(self, filename, volume=0.5, loop=-1):
+        music_path = os.path.join(ASSET_DIR, filename)
+        if os.path.exists(music_path):
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(music_path)
+            pygame.mixer.music.set_volume(volume)
+            pygame.mixer.music.play(loop)
+
+    def stop_music(self):
+        pygame.mixer.music.stop()
+
+    def load_high_score(self):
+        if os.path.exists(self.score_file):
+            with open(self.score_file, "r", encoding="utf-8") as file:
+                content = file.read().strip()
+                if content.isdigit():
+                    return int(content)
+        return 0
+
+    def save_high_score(self, score):
+        high_score = self.load_high_score()
+        if score > high_score:
+            with open(self.score_file, "w", encoding="utf-8") as file:
+                file.write(str(score))
+
+    def draw_ui(self, score, p1_health, p2_health=None):
         score_text = self.font_ui.render(f"Score: {score}", True, WHITE)
-        health_text = self.font_ui.render(f"Health: {health}", True, WHITE)
+        p1_text = self.font_ui.render(f"P1 Health: {p1_health}", True, WHITE)
 
         self.window.blit(score_text, (20, 20))
-        self.window.blit(health_text, (20, 50))
+        self.window.blit(p1_text, (20, 50))
 
-        pygame.draw.rect(self.window, RED, (20, 80, 200, 20))
-        pygame.draw.rect(self.window, GREEN, (20, 80, max(0, health * 2), 20))
+        pygame.draw.rect(self.window, RED, (20, 85, 200, 18))
+        pygame.draw.rect(self.window, GREEN, (20, 85, max(0, p1_health * 2), 18))
+
+        if p2_health is not None:
+            p2_text = self.font_ui.render(f"P2 Health: {p2_health}", True, WHITE)
+            self.window.blit(p2_text, (20, 115))
+
+            pygame.draw.rect(self.window, RED, (20, 150, 200, 18))
+            pygame.draw.rect(self.window, GREEN, (20, 150, max(0, p2_health * 2), 18))
+
+    def create_enemies(self, amount=6):
+        enemies = pygame.sprite.Group()
+        for _ in range(amount):
+            enemies.add(Enemy())
+        return enemies
+
+    def score_screen(self):
+        high_score = self.load_high_score()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "quit"
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
+                        return "menu"
+
+            self.window.fill((10, 10, 20))
+
+            title = self.font_big.render("HIGH SCORE", True, WHITE)
+            score_text = self.font_medium.render(f"Best Score: {high_score}", True, GREEN)
+            info_text = self.font_ui.render("Pressione ENTER ou ESC para voltar", True, WHITE)
+
+            self.window.blit(title, (WIDTH // 2 - title.get_width() // 2, 170))
+            self.window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 250))
+            self.window.blit(info_text, (WIDTH // 2 - info_text.get_width() // 2, 330))
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
     def game_over_screen(self, score):
+        self.stop_music()
+        self.save_high_score(score)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -39,95 +112,143 @@ class Game:
                     if event.key == pygame.K_r:
                         return "restart"
                     if event.key == pygame.K_ESCAPE:
-                        return "quit"
+                        return "menu"
 
             self.window.fill((10, 10, 20))
 
-            game_over = self.font_big.render("GAME OVER", True, RED)
-            score_text = self.font_ui.render(f"Final Score: {score}", True, WHITE)
+            title = self.font_big.render("GAME OVER", True, RED)
+            score_text = self.font_medium.render(f"Final Score: {score}", True, WHITE)
             restart_text = self.font_ui.render("Pressione R para reiniciar", True, WHITE)
-            quit_text = self.font_ui.render("Pressione ESC para sair", True, WHITE)
+            menu_text = self.font_ui.render("Pressione ESC para voltar ao menu", True, WHITE)
 
-            self.window.blit(game_over, (WIDTH // 2 - game_over.get_width() // 2, 180))
-            self.window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 260))
+            self.window.blit(title, (WIDTH // 2 - title.get_width() // 2, 160))
+            self.window.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, 240))
             self.window.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, 320))
-            self.window.blit(quit_text, (WIDTH // 2 - quit_text.get_width() // 2, 360))
+            self.window.blit(menu_text, (WIDTH // 2 - menu_text.get_width() // 2, 360))
 
             pygame.display.flip()
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
-    def play(self):
-        player = Player()
+    def play(self, players_count=1):
+        player1 = Player(
+            start_pos=(120, HEIGHT // 2 - 60),
+            controls={
+                "up": pygame.K_w,
+                "down": pygame.K_s,
+                "left": pygame.K_a,
+                "right": pygame.K_d,
+            },
+            image_name="PlayerShip.png"
+        )
 
-        player_group = pygame.sprite.Group()
-        player_group.add(player)
+        players = pygame.sprite.Group()
+        players.add(player1)
+        player_list = [player1]
+
+        if players_count == 2:
+            player2 = Player(
+                start_pos=(120, HEIGHT // 2 + 60),
+                controls={
+                    "up": pygame.K_UP,
+                    "down": pygame.K_DOWN,
+                    "left": pygame.K_LEFT,
+                    "right": pygame.K_RIGHT,
+                },
+                image_name="PlayerShip.png"
+            )
+            players.add(player2)
+            player_list.append(player2)
 
         bullets = pygame.sprite.Group()
-        enemies = pygame.sprite.Group()
-
-        for _ in range(6):
-            enemies.add(Enemy())
+        enemies = self.create_enemies(6)
+        explosions = pygame.sprite.Group()
 
         score = 0
+        self.play_music("Level1.mp3", volume=0.4)
+
         running = True
-
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load('./asset/Level1.mp3')
-        pygame.mixer.music.set_volume(0.5)
-        pygame.mixer.music.play(-1)
-
         while running:
             self.clock.tick(FPS)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.stop_music()
                     return "quit"
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and player.can_shoot():
-                        bullets.add(player.shoot())
+                    if event.key == pygame.K_ESCAPE:
+                        self.stop_music()
+                        return "menu"
 
-            player_group.update()
+                    if event.key == pygame.K_SPACE and player1.can_shoot():
+                        bullets.add(player1.shoot())
+
+                    if players_count == 2:
+                        if event.key == pygame.K_RCTRL and player_list[1].can_shoot():
+                            bullets.add(player_list[1].shoot())
+
+            players.update()
             bullets.update()
             enemies.update()
+            explosions.update()
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
-            for bullet, enemy_list in hits.items():
+            for _, enemy_list in hits.items():
                 for enemy in enemy_list:
                     score += 10
+                    explosions.add(Explosion(enemy.rect.center))
                     enemy.respawn()
 
-            player_hits = pygame.sprite.spritecollide(player, enemies, False)
-            for enemy in player_hits:
-                player.health -= 1
-                enemy.respawn()
+            for player in player_list:
+                player_hits = pygame.sprite.spritecollide(player, enemies, False)
+                for enemy in player_hits:
+                    player.health -= 1
+                    explosions.add(Explosion(player.rect.center))
+                    enemy.respawn()
 
-            if player.health <= 0:
+            if any(player.health <= 0 for player in player_list):
                 return self.game_over_screen(score)
 
             self.background.draw(self.window)
-            player_group.draw(self.window)
+            players.draw(self.window)
             bullets.draw(self.window)
             enemies.draw(self.window)
-            self.draw_ui(score, player.health)
+            explosions.draw(self.window)
+
+            if players_count == 1:
+                self.draw_ui(score, player_list[0].health)
+            else:
+                self.draw_ui(score, player_list[0].health, player_list[1].health)
 
             pygame.display.flip()
 
+        self.stop_music()
+        return "menu"
+
     def run(self):
-        while True:
+        running = True
+
+        while running:
             menu = Menu(self.window)
             menu_result = menu.run(self.clock)
 
             if menu_result == "quit":
-                break
+                running = False
 
-            if menu_result == "start":
-                result = self.play()
-
+            elif menu_result == "start_1p":
+                result = self.play(players_count=1)
                 if result == "quit":
-                    break
+                    running = False
 
-                if result == "restart":
-                    continue
+            elif menu_result == "start_2p":
+                result = self.play(players_count=2)
+                if result == "quit":
+                    running = False
 
+            elif menu_result == "score":
+                result = self.score_screen()
+                if result == "quit":
+                    running = False
+
+        self.stop_music()
         pygame.quit()
