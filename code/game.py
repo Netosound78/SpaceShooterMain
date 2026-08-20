@@ -71,6 +71,11 @@ class Game:
         score = 0
         running = True
 
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('./asset/Level1.mp3')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
         while running:
             self.clock.tick(FPS)
 
