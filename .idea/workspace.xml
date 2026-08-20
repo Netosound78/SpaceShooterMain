@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cd12ba24-fde9-4cf1-a0ad-6b8b88df623b" name="Changes" comment="Creating main loop&#10;connecting Menu and Game classes" />
+    <list default="true" id="cd12ba24-fde9-4cf1-a0ad-6b8b88df623b" name="Changes" comment="Music when start" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,6 +18,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory"><![CDATA[{
@@ -32,6 +37,9 @@
     "accountId": "026e87db-61b2-46a4-ba8c-04d5f21ff4bc"
   }
 }]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -43,13 +51,17 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.explosion.executor": "Run",
     "Python.game.executor": "Run",
     "Python.main.executor": "Run",
     "Python.menu.executor": "Run",
+    "Python.player.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+    "git-widget-placeholder": "feature__level",
+    "ignore.virus.scanning.warn.message": "true",
+    "run.code.analysis.last.selected.profile": "aDefault"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -96,7 +108,55 @@
       <option name="project" value="LOCAL" />
       <updated>1787235728378</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Creating main loop&#10;connecting Menu and Game classes">
+      <option name="closed" value="true" />
+      <created>1787235862444</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1787235862444</updated>
+    </task>
+    <task id="LOCAL-00005" summary="First try of the full game">
+      <option name="closed" value="true" />
+      <created>1787237339511</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1787237339511</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Music when start">
+      <option name="closed" value="true" />
+      <created>1787238995443</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1787238995443</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Music when start">
+      <option name="closed" value="true" />
+      <created>1787249408918</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1787249408918</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Music when start">
+      <option name="closed" value="true" />
+      <created>1787249508650</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1787249508650</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Music when start">
+      <option name="closed" value="true" />
+      <created>1787249515534</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1787249515534</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -112,6 +172,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Creating main loop&#10;connecting Menu and Game classes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Creating main loop&#10;connecting Menu and Game classes" />
+    <MESSAGE value="First try of the full game" />
+    <MESSAGE value="add two players and commands" />
+    <MESSAGE value="Music when start" />
+    <option name="LAST_COMMIT_MESSAGE" value="Music when start" />
   </component>
 </project>
