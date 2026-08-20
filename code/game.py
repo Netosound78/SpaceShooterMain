@@ -24,14 +24,10 @@ class Game:
         self.font_medium = pygame.font.SysFont("arial", 32, bold=True)
         self.font_big = pygame.font.SysFont("arial", 48, bold=True)
 
-        self.score_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "highscore.txt")
-
-    def calculate_level(self, score):
-        if score >= 200:
-            return 3
-        elif score >= 100:
-            return 2
-        return 1
+        self.score_file = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "highscore.txt"
+        )
 
     def play_music(self, filename, volume=0.5, loop=-1):
         music_path = os.path.join(ASSET_DIR, filename)
@@ -58,28 +54,44 @@ class Game:
             with open(self.score_file, "w", encoding="utf-8") as file:
                 file.write(str(score))
 
-    def draw_ui(self, score, p1_health, p2_health=None):
+    def calculate_level(self, score):
+        if score >= 2000:
+            return 3
+        elif score >= 1000:
+            return 2
+        return 1
+
+    def draw_ui(self, score, level, p1_health, p2_health=None):
         score_text = self.font_ui.render(f"Score: {score}", True, WHITE)
+        level_text = self.font_ui.render(f"Level: {level}", True, WHITE)
         p1_text = self.font_ui.render(f"P1 Health: {p1_health}", True, WHITE)
 
         self.window.blit(score_text, (20, 20))
-        self.window.blit(p1_text, (20, 50))
+        self.window.blit(level_text, (20, 50))
+        self.window.blit(p1_text, (20, 80))
 
-        pygame.draw.rect(self.window, RED, (20, 85, 200, 18))
-        pygame.draw.rect(self.window, GREEN, (20, 85, max(0, p1_health * 2), 18))
+        pygame.draw.rect(self.window, RED, (20, 115, 200, 18))
+        pygame.draw.rect(self.window, GREEN, (20, 115, max(0, p1_health * 2), 18))
 
         if p2_health is not None:
             p2_text = self.font_ui.render(f"P2 Health: {p2_health}", True, WHITE)
-            self.window.blit(p2_text, (20, 115))
+            self.window.blit(p2_text, (20, 145))
 
-            pygame.draw.rect(self.window, RED, (20, 150, 200, 18))
-            pygame.draw.rect(self.window, GREEN, (20, 150, max(0, p2_health * 2), 18))
+            pygame.draw.rect(self.window, RED, (20, 180, 200, 18))
+            pygame.draw.rect(self.window, GREEN, (20, 180, max(0, p2_health * 2), 18))
 
     def create_enemies(self, amount=6):
         enemies = pygame.sprite.Group()
         for _ in range(amount):
             enemies.add(Enemy())
         return enemies
+
+    def update_enemy_difficulty(self, enemies, level):
+        for enemy in enemies:
+            if hasattr(enemy, "base_speed"):
+                enemy.speed = enemy.base_speed + (level - 1) * 2
+            else:
+                enemy.speed += 0
 
     def score_screen(self):
         high_score = self.load_high_score()
@@ -138,12 +150,11 @@ class Game:
 
     def play(self, players_count=1):
         self.background = Background()
-        level = 1
-        self.background.set_level(level)
+
         score = 0
         level = self.calculate_level(score)
         self.background.set_level(level)
-        self.background.update()
+
         player1 = Player(
             start_pos=(120, HEIGHT // 2 - 60),
             controls={
@@ -177,7 +188,6 @@ class Game:
         enemies = self.create_enemies(6)
         explosions = pygame.sprite.Group()
 
-        score = 0
         self.play_music("Level1.mp3", volume=0.4)
 
         running = True
@@ -205,7 +215,6 @@ class Game:
             bullets.update()
             enemies.update()
             explosions.update()
-            self.background.update()
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for _, enemy_list in hits.items():
@@ -214,22 +223,17 @@ class Game:
                     explosions.add(Explosion(enemy.rect.center))
                     enemy.respawn()
 
-            level = self.calculate_level(score)
-            self.background.set_level(level)
-            self.background.update()
-
-            self.background.draw(self.window)
-            players.draw(self.window)
-            bullets.draw(self.window)
-            enemies.draw(self.window)
-            explosions.draw(self.window)
-
             for player in player_list:
                 player_hits = pygame.sprite.spritecollide(player, enemies, False)
                 for enemy in player_hits:
                     player.health -= 1
                     explosions.add(Explosion(player.rect.center))
                     enemy.respawn()
+
+            level = self.calculate_level(score)
+            self.background.set_level(level)
+            self.background.update()
+            self.update_enemy_difficulty(enemies, level)
 
             if any(player.health <= 0 for player in player_list):
                 return self.game_over_screen(score)
@@ -241,10 +245,9 @@ class Game:
             explosions.draw(self.window)
 
             if players_count == 1:
-                self.draw_ui(score, player_list[0].health)
+                self.draw_ui(score, level, player_list[0].health)
             else:
-                self.draw_ui(score, player_list[0].health, player_list[1].health)
-
+                self.draw_ui(score, level, player_list[0].health, player_list[1].health)
 
             pygame.display.flip()
 
@@ -263,16 +266,27 @@ class Game:
 
             elif menu_result == "start_1p":
                 result = self.play(players_count=1)
+
                 if result == "quit":
                     running = False
+                elif result == "restart":
+                    continue
+                elif result == "menu":
+                    continue
 
             elif menu_result == "start_2p":
                 result = self.play(players_count=2)
+
                 if result == "quit":
                     running = False
+                elif result == "restart":
+                    continue
+                elif result == "menu":
+                    continue
 
             elif menu_result == "score":
                 result = self.score_screen()
+
                 if result == "quit":
                     running = False
 

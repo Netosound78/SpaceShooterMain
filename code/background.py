@@ -36,7 +36,7 @@ class Background:
                 self.images.append(image)
 
         if not self.images:
-            raise FileNotFoundError(f"Nenhum background encontrado para o level {level} com prefixo {prefix}.")
+            raise FileNotFoundError(f"Nenhum background encontrado para o level {level}.")
 
         self.image = self.images[self.index]
 
