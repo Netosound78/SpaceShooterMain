@@ -26,6 +26,13 @@ class Game:
 
         self.score_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "highscore.txt")
 
+    def calculate_level(self, score):
+        if score >= 200:
+            return 3
+        elif score >= 100:
+            return 2
+        return 1
+
     def play_music(self, filename, volume=0.5, loop=-1):
         music_path = os.path.join(ASSET_DIR, filename)
         if os.path.exists(music_path):
@@ -131,6 +138,12 @@ class Game:
 
     def play(self, players_count=1):
         self.background = Background()
+        level = 1
+        self.background.set_level(level)
+        score = 0
+        level = self.calculate_level(score)
+        self.background.set_level(level)
+        self.background.update()
         player1 = Player(
             start_pos=(120, HEIGHT // 2 - 60),
             controls={
@@ -200,6 +213,10 @@ class Game:
                     score += 10
                     explosions.add(Explosion(enemy.rect.center))
                     enemy.respawn()
+
+            level = self.calculate_level(score)
+            self.background.set_level(level)
+            self.background.update()
 
             self.background.draw(self.window)
             players.draw(self.window)
